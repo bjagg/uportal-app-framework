@@ -35,7 +35,7 @@
       "descriptionShort": null,
       "messageType": "notification",
       "goLiveDate": "2017-08-03",
-      "expireDate": "null",
+      "expireDate": null,
       "featureImageUrl": null,
       "priority": "high",
       "dismissible": true,
