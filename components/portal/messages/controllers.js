@@ -72,8 +72,6 @@ define(['angular'], function(angular) {
                 messagesService.getMessagesByGroup(allMessages),
               filteredByData:
                 messagesService.getMessagesByData(allMessages),
-              filteredByDate:
-                $filter('filterMessagesWithInvalidDates')(allMessages),
             };
           }
 
@@ -82,8 +80,6 @@ define(['angular'], function(angular) {
               filteredByGroup: allMessages,
               filteredByData:
                 messagesService.getMessagesByData(allMessages),
-              filteredByDate:
-                $filter('filterMessagesWithInvalidDates')(allMessages),
             };
           }
             // Call filtered notifications promises, then pass on to
