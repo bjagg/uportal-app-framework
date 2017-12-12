@@ -72,6 +72,8 @@ define(['angular'], function(angular) {
                 messagesService.getMessagesByGroup(allMessages),
               filteredByData:
                 messagesService.getMessagesByData(allMessages),
+              filteredByDate:
+                $filter('filterMessagesWithInvalidDates')(allMessages),
             };
           }
 
@@ -80,6 +82,8 @@ define(['angular'], function(angular) {
               filteredByGroup: allMessages,
               filteredByData:
                 messagesService.getMessagesByData(allMessages),
+              filteredByDate:
+                $filter('filterMessagesWithInvalidDates')(allMessages),
             };
           }
             // Call filtered notifications promises, then pass on to
@@ -96,6 +100,7 @@ define(['angular'], function(angular) {
          */
         var filterMessagesSuccess = function(result) {
           // Check for filtered notifications
+
           var filteredMessages = [];
           if (result.filteredByGroup && result.filteredByData) {
             // Combine the two filtered arrays into one (no dupes)
@@ -103,8 +108,9 @@ define(['angular'], function(angular) {
               result.filteredByGroup,
               result.filteredByData
             );
+            dateFilteredMessages = $filter('filterMessagesWithInvalidDates')(filteredMessages);
             $scope.messages =
-              $filter('separateMessageTypes')(filteredMessages);
+              $filter('separateMessageTypes')(dateFilteredMessages);
             $scope.hasMessages = true;
           }
         };
