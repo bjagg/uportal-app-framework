@@ -229,6 +229,60 @@ define(['angular'], function(angular) {
             });
         };
 
+        var dismissMessage = function(message) {
+          var seenIds = [];
+          getSeenMessageIds()
+            .then(function(result) {
+              seenIds = result;
+              var index = seenIds.indexOf(message.id);
+              if (index == -1) {
+                  seenIds.push(message.id);
+              }
+              return seenIds;
+            })
+            .catch(function(error) {
+                $log.warn(error);
+            });
+
+            return keyValueService.setValue(KV_KEYS.VIEWED_MESSAGE_IDS,
+              seenIds)
+              .then(function() {
+                $rootScope.$emit('notificationChange');
+                return seenIds;
+              })
+              .catch(function(error) {
+                $log.warn('Problem setting seen message IDs in storage');
+                return error;
+              });
+        };
+
+        var restoreMessage = function(message) {
+          var seenIds = [];
+          getSeenMessageIds()
+            .then(function(result) {
+              seenIds = result;
+              var index = seenIds.indexOf(message.id);
+              if (index > -1) {
+                  seenIds.splice(index, 1);
+              }
+              return seenIds;
+            })
+            .catch(function(error) {
+                $log.warn(error);
+            });
+
+            return keyValueService.setValue(KV_KEYS.VIEWED_MESSAGE_IDS,
+              seenIds)
+              .then(function() {
+                $rootScope.$emit('notificationChange');
+                return seenIds;
+              })
+              .catch(function(error) {
+                $log.warn('Problem setting seen message IDs in storage');
+                return error;
+              });
+        };
+
         /**
          * Set list of seen IDs in K/V store and session storage
          * @param {Array} originalSeenIds - The ids when the
@@ -307,6 +361,7 @@ define(['angular'], function(angular) {
           getMessagesByGroup: getMessagesByGroup,
           getMessagesByData: getMessagesByData,
           getSeenMessageIds: getSeenMessageIds,
+          dismissMessage: dismissMessage,
           setMessagesSeen: setMessagesSeen,
           broadcastPriorityFlag: broadcastPriorityFlag,
           broadcastAnnouncementFlag: broadcastAnnouncementFlag,
