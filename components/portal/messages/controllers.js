@@ -66,22 +66,28 @@ define(['angular'], function(angular) {
           return messagesService.getSeenMessageIds();
         };
 
+        //Promise to resolve urls in messages
         var promiseMessagesByData = function(messages) {
           return messagesService.getMessagesByData(messages);
         };
 
+        //Promise to resolve group memberships
         var promiseMessagesByGroup = function(messages, groupOverride) {
          if (groupOverride) {
            return $q.resolve(messages);
          }
          return messagesService.getMessagesByGroup(messages);
         };
+
         /**
-         * Pedantic linting
+         * Filters raw messages by group membership and 
+         * valid begin/end dates. 
+         * Resolves URLs in messages. 
+         * 
          * @param {Object} messages
          */
         var configureMessages = function(messages, groupOverride) {
-          groupOverride = groupOverride || false;
+          groupOverride = groupOverride || true; //COMMIT WITH FALSE
           $q.all([promiseSeenMessageIds(),
           promiseMessagesByData(messages),
           promiseMessagesByGroup(messages, groupOverride)])
@@ -115,11 +121,17 @@ define(['angular'], function(angular) {
           function(event, data) {
             getMessages();
           });
- //       var configureMessagesWithGroupOverride = function() {
- //         return configureMessages(allMessages, true);
- //       }
+       var configureMessagesWithGroupOverride = function() {
+          return configureMessages(allMessages, true);
+        };
 
-        var dismissMessage = function(message) {
+        /**
+         * Marks a single message as seen.
+         * 
+         * @param {Object} message
+         */
+        var dismissMessage = $scope.$on('dismissMessage',
+        function(event, message) {
           messagesService.dismissMessage(message)
             .then(function(result) {
               configureMessages(allMessages);
@@ -129,8 +141,13 @@ define(['angular'], function(angular) {
               handleMessageError(error);
               return false;
             });
-        };
+        });
 
+        /**
+         * Marks a single message as unseen.
+         * 
+         * @param {Object} message
+         */
         var restoreMessage = function(message) {
           messagesService.restoreMessage(message)
           .then(function(result) {
@@ -198,7 +215,7 @@ define(['angular'], function(angular) {
         vm.titleLengthLimit = 140;
 
         var configureEverything = function() {
-          if (!$localStorage.disableGroupFilteringForMessages) {
+          if ($localStorage.disableGroupFilteringForMessages) {
             $scope.$parent.configureMessagesWithGroupOverride();
           }
           vm.notifications = $scope.$parent.messages.notifications;
@@ -222,9 +239,10 @@ define(['angular'], function(angular) {
                 'Render',
                 vm.priorityNotifications[0].id
               );
+          }
           // Stop loading spinner
           vm.isLoading = false;
-        }
+
       };
 
         var notificationError = function(error) {
@@ -250,12 +268,6 @@ define(['angular'], function(angular) {
           function() {
             configureEverything();
           });
-
-        // ////////////////
-        // Local methods //
-        // ////////////////
-
-
         // ////////////////
         // Scope methods //
         // ////////////////
@@ -270,10 +282,9 @@ define(['angular'], function(angular) {
         /**
          * On-click event to mark a notification as "seen"
          * @param {Object} notification
-         * @param {boolean} isHighPriority
          */
-        vm.dismissNotification = function(notification) { //, isHighPriority) {
-          $scope.$parent.dismissMessage(notification);
+        vm.dismissNotification = function(notification) {
+          $scope.$emit('dismissMessage',notification);
         };
 
         /**

@@ -78,14 +78,16 @@ define(['angular', 'moment'], function(angular, moment) {
             if (!goDate.isValid() && !stopDate.isValid()) {
               return message;
             }
-            // If both the goLive and expire dates are populated,
-            // make certain
+            // If both dates are populated,
+            // check if current date is in range.
             if (goDate.isValid() && stopDate.isValid()) {
               if (goDate.isBefore(thePresent)
                 && stopDate.isAfter(thePresent)) {
                 return message;
               }
             }
+            //If either date is populated, 
+            //perform the appropriate date check.
             if (goDate.isValid() && goDate.isBefore(thePresent)) {
               return message;
             }

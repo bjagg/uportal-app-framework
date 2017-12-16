@@ -237,17 +237,20 @@ define(['angular'], function(angular) {
               var index = seenIds.indexOf(message.id);
               if (index == -1) {
                   seenIds.push(message.id);
+                  setKeyValueSeenIDs(seenIds);
               }
-              return seenIds;
             })
             .catch(function(error) {
                 $log.warn(error);
             });
+            return seenIds;
+        };
 
-            return keyValueService.setValue(KV_KEYS.VIEWED_MESSAGE_IDS,
+        var setKeyValueSeenIDs = function(seenIds) {
+          keyValueService.setValue(KV_KEYS.VIEWED_MESSAGE_IDS,
               seenIds)
               .then(function() {
-                $rootScope.$emit('notificationChange');
+                $rootScope.$emit('configureMessages');
                 return seenIds;
               })
               .catch(function(error) {
